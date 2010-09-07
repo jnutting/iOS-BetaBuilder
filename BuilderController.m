@@ -41,6 +41,7 @@
 @synthesize archiveIPAFilenameField;
 @synthesize generateFilesButton;
 @synthesize mobileProvisionFilePath;
+@synthesize logoFilenameField;
 
 - (IBAction)specifyIPAFile:(id)sender {
 	NSOpenPanel *openDlg = [NSOpenPanel openPanel];
@@ -56,6 +57,23 @@
 		}
 	}
 }
+
+- (IBAction)specifyLogoFile:(id)sender {
+	NSOpenPanel *openDlg = [NSOpenPanel openPanel];
+	[openDlg setCanChooseFiles:YES];
+	[openDlg setCanChooseDirectories:NO];
+	[openDlg setAllowsMultipleSelection:NO];
+	
+	if ([openDlg runModalForDirectory:nil file:nil] == NSOKButton) {
+		NSArray *files = [openDlg filenames];
+		
+		for (int i = 0; i < [files count]; i++) {
+			[logoFilenameField setStringValue:[files objectAtIndex:i]];
+		}
+		
+	}
+}
+
 
 - (void)setupFromIPAFile:(NSString *)ipaFilename {
 	[archiveIPAFilenameField setStringValue:ipaFilename];
@@ -115,6 +133,9 @@
 	//create html file
 	NSString *templatePath = [[NSBundle mainBundle] pathForResource:@"index_template" ofType:@"html"];
 	NSString *htmlTemplateString = [NSString stringWithContentsOfFile:templatePath encoding:NSUTF8StringEncoding error:nil];
+	if ([[logoFilenameField stringValue] length] != 0) {
+		htmlTemplateString = [htmlTemplateString stringByReplacingOccurrencesOfString:@"<div id=\"container\">" withString:[NSString stringWithFormat:@"<div id=\"container\"><img src=\"%@\">", [[logoFilenameField stringValue] lastPathComponent]]];
+	}
 	htmlTemplateString = [htmlTemplateString stringByReplacingOccurrencesOfString:@"[BETA_NAME]" withString:[bundleNameField stringValue]];
 	htmlTemplateString = [htmlTemplateString stringByReplacingOccurrencesOfString:@"[BETA_PLIST]" withString:[NSString stringWithFormat:@"%@/%@", [webserverDirectoryField stringValue], @"manifest.plist"]];
 	
@@ -134,6 +155,7 @@
 		[outerManifestDictionary writeToURL:[saveDirectoryURL URLByAppendingPathComponent:@"manifest.plist"] atomically:YES];
 		[htmlTemplateString writeToURL:[saveDirectoryURL URLByAppendingPathComponent:@"index.html"] atomically:YES encoding:NSASCIIStringEncoding error:nil];
 		
+		
 		//Copy IPA
 		NSError *fileCopyError;
 		NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -144,6 +166,18 @@
 			NSLog(@"Error Copying IPA File: %@", fileCopyError);
 		}
 		
+		//Copy Logo
+		if ([[logoFilenameField stringValue] length] != 0) {
+			NSError *fileCopyError;
+			NSFileManager *fileManager = [NSFileManager defaultManager];
+			NSURL *logoSourceURL = [NSURL fileURLWithPath:[logoFilenameField stringValue]];
+			NSURL *logoDestinationURL = [saveDirectoryURL URLByAppendingPathComponent:[[logoFilenameField stringValue] lastPathComponent]];
+			BOOL copiedLogoFile = [fileManager copyItemAtURL:logoSourceURL toURL:logoDestinationURL error:&fileCopyError];
+			if (!copiedLogoFile) {
+				NSLog(@"Error Copying Logo File: %@", fileCopyError);
+			}
+		}
+				
 		//Copy README
 		NSString *readmeContents = [[NSBundle mainBundle] pathForResource:@"README" ofType:@""];
 		[readmeContents writeToURL:[saveDirectoryURL URLByAppendingPathComponent:@"README.txt"] atomically:YES encoding:NSASCIIStringEncoding error:nil];

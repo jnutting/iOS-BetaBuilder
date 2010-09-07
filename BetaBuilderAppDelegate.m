@@ -37,6 +37,7 @@
 @synthesize window;
 @synthesize deploymentHelpPanel;
 @synthesize archiveIPAHelpPanel;
+@synthesize logoHelpPanel;
 @synthesize builderController;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
@@ -49,6 +50,10 @@
 
 - (IBAction)showArchiveHelpPanel:(id)sender {
 	[archiveIPAHelpPanel setIsVisible:YES];
+}
+
+- (IBAction)showLogoHelpPanel:(id)sender {
+	[logoHelpPanel setIsVisible:YES];
 }
 
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename {

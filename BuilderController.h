@@ -38,6 +38,7 @@
 	NSTextField *bundleNameField;
 	NSTextField *webserverDirectoryField;
 	NSTextField *archiveIPAFilenameField;
+	NSTextField *logoFilenameField;
 	
 	NSButton *generateFilesButton;
 	
@@ -49,12 +50,14 @@
 @property (nonatomic, retain) IBOutlet NSTextField *bundleNameField;
 @property (nonatomic, retain) IBOutlet NSTextField *webserverDirectoryField;
 @property (nonatomic, retain) IBOutlet NSTextField *archiveIPAFilenameField;
+@property (nonatomic, retain) IBOutlet NSTextField *logoFilenameField;
 
 @property (nonatomic, retain) IBOutlet NSButton *generateFilesButton;
 
 @property (nonatomic, copy) NSString *mobileProvisionFilePath;
 
 - (IBAction)specifyIPAFile:(id)sender;
+- (IBAction)specifyLogoFile:(id)sender;
 - (IBAction)generateFiles:(id)sender;
 
 - (void)setupFromIPAFile:(NSString *)ipaFilename;
